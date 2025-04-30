@@ -1,9 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Comic+Sans+MS&family=Open+Dyslexic&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
   --background: 210 20% 98%;
@@ -85,6 +86,66 @@
   --sidebar-ring: 216 34% 17%;
 }
 
+/* High Contrast Mode */
+.high-contrast {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
+  --muted: 0 0% 93%;
+  --muted-foreground: 0 0% 0%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 0%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 0%;
+  --border: 0 0% 0%;
+  --input: 0 0% 88%;
+  --primary: 221 100% 40%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 213 100% 50%;
+  --secondary-foreground: 0 0% 100%;
+  --accent: 151 100% 35%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 100% 45%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 221 100% 40%;
+  
+  /* Enhance contrast for better visibility */
+  --chart-1: 221 100% 40%;
+  --chart-2: 213 100% 50%;
+  --chart-3: 151 100% 30%;
+  --chart-4: 262 100% 45%;
+  --chart-5: 25 100% 45%;
+}
+
+/* Dark High Contrast Mode */
+.dark.high-contrast {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 100%;
+  --popover: 0 0% 0%;
+  --popover-foreground: 0 0% 100%;
+  --card: 0 0% 0%;
+  --card-foreground: 0 0% 100%;
+  --border: 0 0% 100%;
+  --input: 0 0% 20%;
+  --primary: 221 100% 60%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 213 100% 70%;
+  --secondary-foreground: 0 0% 100%;
+  --accent: 151 100% 55%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 100% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 221 100% 60%;
+  
+  /* Enhance contrast for better visibility in dark mode */
+  --chart-1: 221 100% 60%;
+  --chart-2: 213 100% 70%;
+  --chart-3: 151 100% 55%;
+  --chart-4: 262 100% 65%;
+  --chart-5: 25 100% 65%;
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -98,6 +159,42 @@
   code, pre, .code-font {
     font-family: 'JetBrains Mono', monospace;
   }
+}
+
+/* Dyslexic Font Support */
+.dyslexic-font body {
+  font-family: 'Open Dyslexic', 'Comic Sans MS', sans-serif;
+}
+
+.dyslexic-font h1,
+.dyslexic-font h2,
+.dyslexic-font h3,
+.dyslexic-font h4,
+.dyslexic-font h5,
+.dyslexic-font h6,
+.dyslexic-font p,
+.dyslexic-font span,
+.dyslexic-font button,
+.dyslexic-font input,
+.dyslexic-font textarea,
+.dyslexic-font select,
+.dyslexic-font label {
+  font-family: 'Open Dyslexic', 'Comic Sans MS', sans-serif;
+}
+
+/* Reduced Motion */
+.reduce-motion * {
+  transition-duration: 0.001ms !important;
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+}
+
+/* Enhanced Focus Indicators */
+.focus-visible :focus {
+  outline: 3px solid hsl(var(--primary)) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(var(--primary), 0.3) !important;
 }
 
 /* Custom scrollbar */
@@ -116,4 +213,23 @@
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
+}
+
+/* High contrast scrollbar */
+.high-contrast .custom-scrollbar::-webkit-scrollbar-track {
+  background: #ffffff;
+}
+
+.high-contrast .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #000000;
+  border: 1px solid #ffffff;
+}
+
+.dark.high-contrast .custom-scrollbar::-webkit-scrollbar-track {
+  background: #000000;
+}
+
+.dark.high-contrast .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #ffffff;
+  border: 1px solid #000000;
 }

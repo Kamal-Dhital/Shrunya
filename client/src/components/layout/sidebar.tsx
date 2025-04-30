@@ -14,13 +14,20 @@ import {
   SettingsIcon,
   SearchIcon,
   MenuIcon,
-  XIcon
+  XIcon,
+  EyeIcon,
+  UserCircleIcon,
+  CreditCardIcon
 } from "lucide-react";
 
 type NavItem = {
   label: string;
   href: string;
   icon: React.ReactNode;
+  subItems?: {
+    label: string;
+    href: string;
+  }[];
 };
 
 const mainNav: NavItem[] = [
@@ -59,13 +66,31 @@ const mainNav: NavItem[] = [
 const accountNav: NavItem[] = [
   {
     label: "Profile",
-    href: "/profile",
-    icon: <UserIcon className="w-5 h-5" />,
+    href: "/user/profile",
+    icon: <UserCircleIcon className="w-5 h-5" />,
   },
   {
     label: "Settings",
-    href: "/settings",
+    href: "/settings/accessibility",
     icon: <SettingsIcon className="w-5 h-5" />,
+    subItems: [
+      {
+        label: "Accessibility",
+        href: "/settings/accessibility",
+      },
+      {
+        label: "Account",
+        href: "/user/profile",
+      },
+      {
+        label: "Payments",
+        href: "/user/profile?tab=billing",
+      },
+      {
+        label: "Notifications",
+        href: "/user/profile?tab=notifications",
+      },
+    ]
   },
 ];
 
@@ -171,21 +196,46 @@ export function Sidebar() {
           </div>
 
           {accountNav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={closeSidebar}
-            >
-              <a
-                className={cn(
-                  "flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors",
-                  location === item.href && "text-primary bg-blue-50 hover:bg-blue-100"
-                )}
+            <div key={item.href}>
+              <Link
+                href={item.href}
+                onClick={closeSidebar}
               >
-                <span className="mr-3">{item.icon}</span>
-                <span>{item.label}</span>
-              </a>
-            </Link>
+                <a
+                  className={cn(
+                    "flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors",
+                    (location === item.href || 
+                     (item.subItems && item.subItems.some(subItem => location === subItem.href))) && 
+                     "text-primary bg-blue-50 hover:bg-blue-100"
+                  )}
+                >
+                  <span className="mr-3">{item.icon}</span>
+                  <span>{item.label}</span>
+                </a>
+              </Link>
+              
+              {/* Submenu items */}
+              {item.subItems && (
+                <div className="ml-6 mt-1 mb-2 space-y-1">
+                  {item.subItems.map((subItem) => (
+                    <Link 
+                      key={subItem.href}
+                      href={subItem.href}
+                      onClick={closeSidebar}
+                    >
+                      <a
+                        className={cn(
+                          "block px-4 py-1.5 text-sm text-gray-600 hover:text-primary transition-colors",
+                          location === subItem.href && "text-primary font-medium"
+                        )}
+                      >
+                        {subItem.label}
+                      </a>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </nav>
 
