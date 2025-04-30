@@ -22,8 +22,29 @@ import UserProfile from "@/pages/user/profile";
 // Settings pages
 import AccessibilitySettings from "@/pages/settings/accessibility";
 
+// Auth pages
+import LandingPage from "@/pages/auth/landing";
+import LoginPage from "@/pages/auth/login";
+import SignupPage from "@/pages/auth/signup";
+import ForgotPasswordPage from "@/pages/auth/forgot-password";
+
 // Create context for accessibility settings
 import { createContext, useState, useEffect } from "react";
+
+// Auth context
+export interface AuthContextType {
+  isAuthenticated: boolean;
+  user: any | null;
+  login: (userData: any) => void;
+  logout: () => void;
+}
+
+export const AuthContext = createContext<AuthContextType>({
+  isAuthenticated: false,
+  user: null,
+  login: () => {},
+  logout: () => {},
+});
 
 export const AccessibilityContext = createContext({
   fontSize: 100,
@@ -40,9 +61,46 @@ export const AccessibilityContext = createContext({
   setColorTheme: (theme: string) => {}
 });
 
+// Notification context
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  read: boolean;
+  createdAt: Date;
+}
+
+export interface NotificationContextType {
+  notifications: Notification[];
+  unreadCount: number;
+  addNotification: (notification: Omit<Notification, 'id' | 'read' | 'createdAt'>) => void;
+  markAsRead: (id: string) => void;
+  markAllAsRead: () => void;
+  removeNotification: (id: string) => void;
+  clearAll: () => void;
+}
+
+export const NotificationContext = createContext<NotificationContextType>({
+  notifications: [],
+  unreadCount: 0,
+  addNotification: () => {},
+  markAsRead: () => {},
+  markAllAsRead: () => {},
+  removeNotification: () => {},
+  clearAll: () => {},
+});
+
 function Router() {
   return (
     <Switch>
+      {/* Auth routes */}
+      <Route path="/auth/landing" component={LandingPage} />
+      <Route path="/auth/login" component={LoginPage} />
+      <Route path="/auth/signup" component={SignupPage} />
+      <Route path="/auth/forgot-password" component={ForgotPasswordPage} />
+      
+      {/* Main app routes */}
       <Route path="/" component={Dashboard} />
       <Route path="/learning" component={Learning} />
       <Route path="/projects" component={Projects} />
@@ -67,6 +125,83 @@ function Router() {
 }
 
 function App() {
+  // Auth state
+  const [isAuthenticated, setIsAuthenticated] = useState(true); // For demo purposes, users start authenticated
+  const [user, setUser] = useState({
+    id: 1,
+    username: "sarah_williams",
+    fullName: "Sarah Williams",
+    email: "sarah.williams@example.com",
+    role: "user"
+  });
+  
+  // Login and logout functions
+  const login = (userData: any) => {
+    setUser(userData);
+    setIsAuthenticated(true);
+    // In a real app, we would also store a token in localStorage or cookies
+  };
+  
+  const logout = () => {
+    setUser(null);
+    setIsAuthenticated(false);
+    // In a real app, we would also remove the token from localStorage or cookies
+  };
+  
+  // Notification state
+  const [notifications, setNotifications] = useState<Notification[]>([
+    {
+      id: "1",
+      title: "Welcome to SHRUNYA",
+      message: "We're glad to have you here. Explore the platform to get started.",
+      type: "info",
+      read: false,
+      createdAt: new Date()
+    },
+    {
+      id: "2",
+      title: "Course Recommendation",
+      message: "Based on your interests, we recommend 'Advanced JavaScript Patterns'.",
+      type: "success",
+      read: false,
+      createdAt: new Date(Date.now() - 1000 * 60 * 60)
+    }
+  ]);
+  
+  // Calculate unread notifications count
+  const unreadCount = notifications.filter(n => !n.read).length;
+  
+  // Notification functions
+  const addNotification = (notification: Omit<Notification, 'id' | 'read' | 'createdAt'>) => {
+    const newNotification: Notification = {
+      ...notification,
+      id: Date.now().toString(),
+      read: false,
+      createdAt: new Date()
+    };
+    setNotifications(prev => [newNotification, ...prev]);
+  };
+  
+  const markAsRead = (id: string) => {
+    setNotifications(prev => 
+      prev.map(n => n.id === id ? { ...n, read: true } : n)
+    );
+  };
+  
+  const markAllAsRead = () => {
+    setNotifications(prev => 
+      prev.map(n => ({ ...n, read: true }))
+    );
+  };
+  
+  const removeNotification = (id: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+  
+  const clearAll = () => {
+    setNotifications([]);
+  };
+  
   // Accessibility settings state
   const [fontSize, setFontSize] = useState(100);
   const [highContrast, setHighContrast] = useState(false);
@@ -147,25 +282,42 @@ function App() {
   
   return (
     <QueryClientProvider client={queryClient}>
-      <AccessibilityContext.Provider value={{
-        fontSize,
-        setFontSize,
-        highContrast,
-        setHighContrast,
-        reducedMotion,
-        setReducedMotion,
-        dyslexicFont,
-        setDyslexicFont,
-        focusIndicators,
-        setFocusIndicators,
-        colorTheme,
-        setColorTheme
+      <AuthContext.Provider value={{
+        isAuthenticated,
+        user,
+        login,
+        logout
       }}>
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
-      </AccessibilityContext.Provider>
+        <NotificationContext.Provider value={{
+          notifications,
+          unreadCount,
+          addNotification,
+          markAsRead,
+          markAllAsRead,
+          removeNotification,
+          clearAll
+        }}>
+          <AccessibilityContext.Provider value={{
+            fontSize,
+            setFontSize,
+            highContrast,
+            setHighContrast,
+            reducedMotion,
+            setReducedMotion,
+            dyslexicFont,
+            setDyslexicFont,
+            focusIndicators,
+            setFocusIndicators,
+            colorTheme,
+            setColorTheme
+          }}>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
+          </AccessibilityContext.Provider>
+        </NotificationContext.Provider>
+      </AuthContext.Provider>
     </QueryClientProvider>
   );
 }
