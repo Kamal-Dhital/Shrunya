@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { JobCard } from "@/components/dashboard/job-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BriefcaseIcon, SearchIcon, FilterIcon, BuildingIcon, GlobeIcon } from "lucide-react";
@@ -90,6 +91,10 @@ export default function Jobs() {
       
       <div className="flex-1 overflow-y-auto md:ml-64">
         <Header />
+        <Breadcrumbs items={[
+          { label: "Home", href: "/" },
+          { label: "Jobs", href: "/jobs", isCurrent: true }
+        ]} />
         
         <main className="p-4 md:p-6">
           {/* Page header */}
@@ -162,7 +167,7 @@ export default function Jobs() {
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-700 font-medium">$130K - $180K</span>
-                        <Button>Apply Now</Button>
+                        <Button onClick={() => window.location.href = `/jobs/1`}>View Details</Button>
                       </div>
                     </div>
                   </div>
@@ -200,6 +205,7 @@ export default function Jobs() {
                   {filteredJobs.map((job: any) => (
                     <JobCard
                       key={job.id}
+                      id={job.id}
                       title={job.title}
                       company={job.company}
                       location={job.location}
@@ -223,20 +229,7 @@ export default function Jobs() {
             
             {/* Sidebar */}
             <div className="lg:col-span-1">
-              {/* Job alert card */}
-              <Card className="mb-6 bg-primary text-white">
-                <CardContent className="pt-6">
-                  <h3 className="font-semibold text-lg mb-2">Stay Updated</h3>
-                  <p className="text-white/90 text-sm mb-4">
-                    Receive job alerts for the latest developer opportunities
-                  </p>
-                  <Input 
-                    placeholder="Your email address" 
-                    className="mb-3 bg-white/10 border-white/20 text-white placeholder:text-white/70"
-                  />
-                  <Button variant="secondary" className="w-full">Create Job Alert</Button>
-                </CardContent>
-              </Card>
+              {/* Job Alert card removed as requested */}
               
               {/* Skills filter */}
               <Card className="mb-6">

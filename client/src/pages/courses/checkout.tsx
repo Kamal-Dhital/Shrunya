@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -116,6 +117,12 @@ export default function CourseCheckout() {
       
       <div className="flex-1 overflow-y-auto md:ml-64">
         <Header />
+        <Breadcrumbs items={[
+          { label: "Home", href: "/" },
+          { label: "Learning", href: "/learning" },
+          { label: courseQuery.data?.title || "Course", href: `/courses/${courseId}` },
+          { label: "Checkout", href: `/courses/${courseId}/checkout`, isCurrent: true }
+        ]} />
         
         <main className="p-4 md:p-6">
           <div className="max-w-4xl mx-auto">

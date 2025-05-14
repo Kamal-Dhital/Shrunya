@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { DiscussionCard } from "@/components/dashboard/discussion-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MessageSquareIcon, SearchIcon, FilterIcon, TrendingUpIcon, UsersIcon, ZapIcon, ClockIcon } from "lucide-react";
@@ -10,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import { navigate } from "wouter/use-browser-location";
 
 export default function Community() {
   const [activeTab, setActiveTab] = useState("trending");
@@ -79,6 +81,10 @@ export default function Community() {
       
       <div className="flex-1 overflow-y-auto md:ml-64">
         <Header />
+        <Breadcrumbs items={[
+          { label: "Home", href: "/" },
+          { label: "Community", href: "/community", isCurrent: true }
+        ]} />
         
         <main className="p-4 md:p-6">
           {/* Page header */}
@@ -94,7 +100,10 @@ export default function Community() {
             <div className="lg:col-span-3">
               {/* Create post button and search */}
               <div className="mb-6 flex flex-col md:flex-row gap-4">
-                <Button className="bg-primary">
+                <Button 
+                  className="bg-primary"
+                  onClick={() => navigate("/community/create-post")}
+                >
                   <MessageSquareIcon className="mr-2 h-4 w-4" />
                   Create New Post
                 </Button>
@@ -181,7 +190,7 @@ export default function Community() {
                   <MessageSquareIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                   <h3 className="text-lg font-medium mb-2">No discussions found</h3>
                   <p className="text-gray-500 mb-4">Try changing your search or be the first to start a discussion</p>
-                  <Button>Create New Post</Button>
+                  <Button onClick={() => navigate("/community/create-post")}>Create New Post</Button>
                 </div>
               )}
             </div>

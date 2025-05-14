@@ -1,8 +1,10 @@
 import { Switch, Route } from "wouter";
+import { lazy, Suspense } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { FloatingAccessibilityButton } from "@/components/accessibility/floating-button";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import Learning from "@/pages/learning";
@@ -93,34 +95,61 @@ export const NotificationContext = createContext<NotificationContextType>({
 
 function Router() {
   return (
-    <Switch>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center"><div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div></div>}>
+      <Switch>
+        {/* Landing page as entry point */}
+        <Route path="/" component={LandingPage} />
+      
       {/* Auth routes */}
-      <Route path="/auth/landing" component={LandingPage} />
       <Route path="/auth/login" component={LoginPage} />
       <Route path="/auth/signup" component={SignupPage} />
       <Route path="/auth/forgot-password" component={ForgotPasswordPage} />
       
       {/* Main app routes */}
-      <Route path="/" component={Dashboard} />
+      <Route path="/dashboard" component={Dashboard} />
       <Route path="/learning" component={Learning} />
       <Route path="/projects" component={Projects} />
       <Route path="/challenges" component={Challenges} />
       <Route path="/community" component={Community} />
       <Route path="/jobs" component={Jobs} />
       
+      {/* Project routes */}
+      <Route path="/projects/:id" component={lazy(() => import("@/pages/projects/project-detail"))} />
+      <Route path="/projects/:id/editor" component={lazy(() => import("@/pages/projects/project-editor"))} />
+      
+      {/* Challenge routes */}
+      <Route path="/challenges/:id" component={lazy(() => import("@/pages/challenges/challenge-detail"))} />
+      <Route path="/challenges/:id/editor" component={lazy(() => import("@/pages/challenges/challenge-editor"))} />
+      <Route path="/challenges/:id/results" component={lazy(() => import("@/pages/challenges/challenge-results"))} />
+      <Route path="/challenges/:id/leaderboard" component={lazy(() => import("@/pages/challenges/challenge-leaderboard"))} />
+      
+      {/* Job application flow */}
+      <Route path="/jobs/:id" component={lazy(() => import("@/pages/jobs/job-detail"))} />
+      <Route path="/jobs/:id/apply" component={lazy(() => import("@/pages/jobs/job-apply"))} />
+      <Route path="/jobs/:id/success" component={lazy(() => import("@/pages/jobs/job-success"))} />
+      <Route path="/user/applications" component={lazy(() => import("@/pages/user/applications"))} />
+      
       {/* Course routes */}
       <Route path="/courses/:id" component={CourseDetail} />
+      <Route path="/courses/:id/enroll" component={lazy(() => import("@/pages/courses/enroll"))} />
       <Route path="/courses/:id/checkout" component={CourseCheckout} />
       <Route path="/courses/:id/learn" component={CourseLearn} />
+      <Route path="/courses/:id/certificate" component={lazy(() => import("@/pages/courses/certificate"))} />
       
       {/* User routes */}
       <Route path="/user/profile" component={UserProfile} />
+      
+      {/* Community routes */}
+      <Route path="/community/create-post" component={lazy(() => import("@/pages/community/create-post"))} />
+      <Route path="/community/post/:id" component={lazy(() => import("@/pages/community/post-detail"))} />
+      <Route path="/community/post-success" component={lazy(() => import("@/pages/community/post-success"))} />
       
       {/* Settings routes */}
       <Route path="/settings/accessibility" component={AccessibilitySettings} />
       
       <Route component={NotFound} />
     </Switch>
+    </Suspense>
   );
 }
 
@@ -313,6 +342,7 @@ function App() {
           }}>
             <TooltipProvider>
               <Toaster />
+              <FloatingAccessibilityButton />
               <Router />
             </TooltipProvider>
           </AccessibilityContext.Provider>

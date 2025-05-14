@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { ChallengeCard } from "@/components/dashboard/challenge-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrophyIcon, SearchIcon, FilterIcon, CalendarIcon, UsersIcon } from "lucide-react";
@@ -10,10 +11,21 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 export default function Challenges() {
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showFilterDialog, setShowFilterDialog] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState<{
+    category: string[];
+    participants: string[];
+  }>({
+    category: [],
+    participants: []
+  });
   
   // Fetch challenges data
   const challengesQuery = useQuery({
@@ -23,7 +35,7 @@ export default function Challenges() {
 
   const isLoading = challengesQuery.isLoading;
 
-  // Filter challenges based on search and active tab
+  // Filter challenges based on search, active tab, and additional filters
   const filterChallenges = (challenges: any[]) => {
     if (!challenges) return [];
     
@@ -39,9 +51,24 @@ export default function Challenges() {
       );
     }
     
-    // Filter by tab
+    // Filter by tab (difficulty)
     if (activeTab !== "all") {
       filtered = filtered.filter(challenge => challenge.difficulty.toLowerCase() === activeTab.toLowerCase());
+    }
+    
+    // Apply additional filters
+    if (selectedFilters.category.length > 0) {
+      filtered = filtered.filter(challenge => 
+        selectedFilters.category.includes(challenge.category)
+      );
+    }
+    
+    if (selectedFilters.participants.length > 0) {
+      filtered = filtered.filter(challenge => {
+        const participantLevel = challenge.participants < 50 ? "Low" : 
+                               challenge.participants < 200 ? "Medium" : "High";
+        return selectedFilters.participants.includes(participantLevel);
+      });
     }
     
     return filtered;
@@ -56,6 +83,10 @@ export default function Challenges() {
       
       <div className="flex-1 overflow-y-auto md:ml-64">
         <Header />
+        <Breadcrumbs items={[
+          { label: "Home", href: "/" },
+          { label: "Challenges", href: "/challenges", isCurrent: true }
+        ]} />
         
         <main className="p-4 md:p-6">
           {/* Page header */}
@@ -110,9 +141,18 @@ export default function Challenges() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <Button variant="outline" className="flex items-center gap-1">
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-1"
+                onClick={() => setShowFilterDialog(true)}
+              >
                 <FilterIcon className="h-4 w-4" />
                 <span>Filters</span>
+                {(selectedFilters.category.length > 0 || selectedFilters.participants.length > 0) && (
+                  <span className="ml-2 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {selectedFilters.category.length + selectedFilters.participants.length}
+                  </span>
+                )}
               </Button>
             </div>
           </div>
@@ -152,6 +192,7 @@ export default function Challenges() {
               {filteredChallenges.map((challenge: any) => (
                 <ChallengeCard
                   key={challenge.id}
+                  id={challenge.id}
                   title={challenge.title}
                   description={challenge.description}
                   category={challenge.category}
@@ -169,6 +210,87 @@ export default function Challenges() {
             </div>
           )}
         </main>
+        
+        {/* Filter Dialog */}
+        <Dialog open={showFilterDialog} onOpenChange={setShowFilterDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Filter Challenges</DialogTitle>
+            </DialogHeader>
+            
+            <div className="grid gap-6 py-4">
+              {/* Category Filters */}
+              <div>
+                <h3 className="font-medium mb-3">Category</h3>
+                <div className="space-y-2">
+                  {["Algorithms", "Data Structures", "Web Development", "Machine Learning"].map((category) => (
+                    <div key={category} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={`category-${category}`} 
+                        checked={selectedFilters.category.includes(category)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedFilters(prev => ({
+                              ...prev,
+                              category: [...prev.category, category]
+                            }));
+                          } else {
+                            setSelectedFilters(prev => ({
+                              ...prev,
+                              category: prev.category.filter(c => c !== category)
+                            }));
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`category-${category}`}>{category}</Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Participants Filters */}
+              <div>
+                <h3 className="font-medium mb-3">Participation Level</h3>
+                <div className="space-y-2">
+                  {["Low", "Medium", "High"].map((level) => (
+                    <div key={level} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={`participants-${level}`} 
+                        checked={selectedFilters.participants.includes(level)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedFilters(prev => ({
+                              ...prev,
+                              participants: [...prev.participants, level]
+                            }));
+                          } else {
+                            setSelectedFilters(prev => ({
+                              ...prev,
+                              participants: prev.participants.filter(p => p !== level)
+                            }));
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`participants-${level}`}>{level}</Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setSelectedFilters({ category: [], participants: [] });
+                }}
+              >
+                Reset
+              </Button>
+              <Button onClick={() => setShowFilterDialog(false)}>Apply Filters</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

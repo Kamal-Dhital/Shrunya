@@ -3,6 +3,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ArrowRightIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLocation } from "wouter";
 
 interface CourseCardProps {
   id: number;
@@ -25,6 +26,7 @@ export function CourseCard({
   completedModules,
   className,
 }: CourseCardProps) {
+  const [, navigate] = useLocation();
   const progressPercentage = (completedModules / totalModules) * 100;
   
   const getCategoryColorClass = (category: string) => {
@@ -38,9 +40,21 @@ export function CourseCard({
     
     return categories[category] || "bg-gray-600";
   };
+  
+  const handleCardClick = () => {
+    // If course has progress, go to learning page, otherwise go to course details
+    if (completedModules > 0) {
+      navigate(`/courses/${id}/learn`);
+    } else {
+      navigate(`/courses/${id}`);
+    }
+  };
 
   return (
-    <Card className={cn("overflow-hidden flex flex-col", className)}>
+    <Card 
+      className={cn("overflow-hidden flex flex-col cursor-pointer", className)}
+      onClick={handleCardClick}
+    >
       <div className="relative">
         <img 
           src={thumbnail} 
@@ -71,12 +85,13 @@ export function CourseCard({
         <Button 
           variant="link" 
           className="text-primary w-full justify-center"
-          asChild
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/courses/${id}/learn`);
+          }}
         >
-          <a href={`/learning/${id}`}>
-            Continue learning
-            <ArrowRightIcon className="ml-1 h-4 w-4" />
-          </a>
+          Continue learning
+          <ArrowRightIcon className="ml-1 h-4 w-4" />
         </Button>
       </CardFooter>
     </Card>

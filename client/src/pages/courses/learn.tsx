@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,8 @@ import {
   DownloadIcon,
   MessageSquareIcon,
   UsersIcon,
+  TrophyIcon,
+  ArrowUpIcon,
 } from "lucide-react";
 
 export default function CourseLearn() {
@@ -241,6 +244,12 @@ export default function CourseLearn() {
       
       <div className="flex-1 overflow-hidden md:ml-64">
         <Header />
+        <Breadcrumbs items={[
+          { label: "Home", href: "/" },
+          { label: "Learning", href: "/learning" },
+          { label: courseQuery.data?.title || "Course", href: `/courses/${courseId}` },
+          { label: "Learn", href: `/courses/${courseId}/learn`, isCurrent: true }
+        ]} />
         
         <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
           {/* Course sidebar */}
@@ -400,18 +409,33 @@ export default function CourseLearn() {
                       </Button>
                       
                       <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          onClick={markLessonComplete}
-                        >
-                          <CheckIcon className="mr-2 h-4 w-4" />
-                          Mark as Complete
-                        </Button>
-                        
-                        <Button onClick={goToNextLesson}>
-                          Next Lesson
-                          <ArrowRightIcon className="ml-2 h-4 w-4" />
-                        </Button>
+                        {/* Show Complete Course button if all modules are completed */}
+                        {userCoursesQuery.data && courseId && userCoursesQuery.data.find(
+                          (uc: any) => uc.courseId === courseId
+                        )?.completedModules >= course?.totalModules ? (
+                          <Button 
+                            onClick={() => setLocation(`/courses/${courseId}/certificate`)}
+                            className="bg-green-600 hover:bg-green-700"
+                          >
+                            Get Certificate
+                            <TrophyIcon className="ml-2 h-4 w-4" />
+                          </Button>
+                        ) : (
+                          <>
+                            <Button 
+                              variant="outline" 
+                              onClick={markLessonComplete}
+                            >
+                              <CheckIcon className="mr-2 h-4 w-4" />
+                              Mark as Complete
+                            </Button>
+                            
+                            <Button onClick={goToNextLesson}>
+                              Next Lesson
+                              <ArrowRightIcon className="ml-2 h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </div>
                   </TabsContent>

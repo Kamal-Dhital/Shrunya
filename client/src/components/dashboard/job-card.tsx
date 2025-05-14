@@ -5,6 +5,7 @@ import { ClockIcon, DollarSignIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface JobCardProps {
+  id?: number;
   title: string;
   company: string;
   location: string;
@@ -17,6 +18,7 @@ interface JobCardProps {
 }
 
 export function JobCard({
+  id,
   title,
   company,
   location,
@@ -112,8 +114,11 @@ export function JobCard({
         </div>
         
         <div className="mt-3">
-          <Button className="w-full bg-primary hover:bg-primary/90">
-            Apply Now
+          <Button 
+            className="w-full bg-primary hover:bg-primary/90"
+            onClick={() => window.location.href = `/jobs/${id}`}
+          >
+            View Details
           </Button>
         </div>
       </CardContent>

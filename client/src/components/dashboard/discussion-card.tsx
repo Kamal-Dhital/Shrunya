@@ -1,11 +1,15 @@
+import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MessageSquareIcon, EyeIcon, ArrowUpIcon, ArrowDownIcon } from "lucide-react";
+import { MessageSquareIcon, EyeIcon, ArrowUpIcon, ArrowDownIcon, HeartIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface DiscussionCardProps {
+  id?: number;
   title: string;
   content: string;
   author: {
@@ -22,6 +26,7 @@ interface DiscussionCardProps {
 }
 
 export function DiscussionCard({
+  id = 1, // Default ID if not provided
   title,
   content,
   author,
@@ -32,6 +37,43 @@ export function DiscussionCard({
   tags,
   className,
 }: DiscussionCardProps) {
+  const [, navigate] = useLocation();
+  const { toast } = useToast();
+  const [liked, setLiked] = useState(false);
+  
+  // Handle like/unlike
+  const handleLike = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setLiked(!liked);
+    
+    toast({
+      title: liked ? "Post Unliked" : "Post Liked",
+      description: liked ? "You have removed your like from this post." : "You have liked this post.",
+    });
+  };
+  
+  // Handle upvote
+  const handleUpvote = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast({
+      title: "Upvoted",
+      description: "You upvoted this post.",
+    });
+  };
+  
+  // Handle downvote
+  const handleDownvote = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast({
+      title: "Downvoted",
+      description: "You downvoted this post.",
+    });
+  };
+  
+  // Navigate to post detail
+  const goToPostDetail = () => {
+    navigate(`/community/post/${id}`);
+  };
   // Calculate relative time (e.g., "2 hours ago")
   const getRelativeTime = (date: Date) => {
     const now = new Date();
@@ -53,15 +95,28 @@ export function DiscussionCard({
   };
 
   return (
-    <Card className={cn("mb-4", className)}>
+    <Card 
+      className={cn("mb-4 cursor-pointer hover:shadow-md transition-shadow", className)}
+      onClick={goToPostDetail}
+    >
       <CardContent className="p-4">
         <div className="flex">
           <div className="flex flex-col items-center mr-4">
-            <Button variant="ghost" size="sm" className="text-gray-400 hover:text-primary">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-gray-400 hover:text-primary"
+              onClick={handleUpvote}
+            >
               <ArrowUpIcon className="h-5 w-5" />
             </Button>
             <span className="font-medium my-1">{upvotes}</span>
-            <Button variant="ghost" size="sm" className="text-gray-400 hover:text-red-500">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-gray-400 hover:text-red-500"
+              onClick={handleDownvote}
+            >
               <ArrowDownIcon className="h-5 w-5" />
             </Button>
           </div>
@@ -96,6 +151,17 @@ export function DiscussionCard({
               <div className="flex items-center">
                 <EyeIcon className="mr-1 h-4 w-4" />
                 <span>{views} views</span>
+              </div>
+              <div className="ml-auto">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={`flex items-center gap-1 ${liked ? 'text-red-500' : 'text-gray-500'}`}
+                  onClick={handleLike}
+                >
+                  <HeartIcon className="h-4 w-4" />
+                  <span>{liked ? 'Liked' : 'Like'}</span>
+                </Button>
               </div>
             </div>
           </div>

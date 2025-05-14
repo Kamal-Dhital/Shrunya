@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -147,6 +148,11 @@ export default function AccessibilitySettings() {
       
       <div className="flex-1 overflow-y-auto md:ml-64">
         <Header />
+        <Breadcrumbs items={[
+          { label: "Home", href: "/" },
+          { label: "Settings", href: "/settings" },
+          { label: "Accessibility", href: "/settings/accessibility", isCurrent: true }
+        ]} />
         
         <main className="p-4 md:p-6">
           {/* Page header */}

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,10 +10,22 @@ import { CodeIcon, SearchIcon, FilterIcon, ClockIcon, UsersIcon } from "lucide-r
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { navigate } from "wouter/use-browser-location";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 export default function Projects() {
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showFilterDialog, setShowFilterDialog] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState<{
+    category: string[];
+    duration: string[];
+  }>({
+    category: [],
+    duration: []
+  });
   
   // Fetch projects data
   const projectsQuery = useQuery({
@@ -22,7 +35,7 @@ export default function Projects() {
 
   const isLoading = projectsQuery.isLoading;
 
-  // Filter projects based on search and active tab
+  // Filter projects based on search, active tab, and additional filters
   const filterProjects = (projects: any[]) => {
     if (!projects) return [];
     
@@ -38,9 +51,25 @@ export default function Projects() {
       );
     }
     
-    // Filter by tab
+    // Filter by tab (difficulty)
     if (activeTab !== "all") {
       filtered = filtered.filter(project => project.difficulty.toLowerCase() === activeTab);
+    }
+    
+    // Apply additional filters
+    if (selectedFilters.category.length > 0) {
+      filtered = filtered.filter(project => 
+        selectedFilters.category.includes(project.category)
+      );
+    }
+    
+    if (selectedFilters.duration.length > 0) {
+      filtered = filtered.filter(project => {
+        // Determine project duration based on some criteria
+        const duration = project.id % 3 === 0 ? "Short" : 
+                        project.id % 3 === 1 ? "Medium" : "Long";
+        return selectedFilters.duration.includes(duration);
+      });
     }
     
     return filtered;
@@ -66,6 +95,10 @@ export default function Projects() {
       
       <div className="flex-1 overflow-y-auto md:ml-64">
         <Header />
+        <Breadcrumbs items={[
+          { label: "Home", href: "/" },
+          { label: "Projects", href: "/projects", isCurrent: true }
+        ]} />
         
         <main className="p-4 md:p-6">
           {/* Page header */}
@@ -89,9 +122,18 @@ export default function Projects() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <Button variant="outline" className="flex items-center gap-1">
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-1"
+                onClick={() => setShowFilterDialog(true)}
+              >
                 <FilterIcon className="h-4 w-4" />
                 <span>Filters</span>
+                {(selectedFilters.category.length > 0 || selectedFilters.duration.length > 0) && (
+                  <span className="ml-2 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {selectedFilters.category.length + selectedFilters.duration.length}
+                  </span>
+                )}
               </Button>
             </div>
           </div>
@@ -169,7 +211,12 @@ export default function Projects() {
                   </CardContent>
                   
                   <CardFooter className="bg-gray-50 px-4 py-3 border-t border-gray-200">
-                    <Button className="w-full">Start Project</Button>
+                    <Button 
+                      className="w-full" 
+                      onClick={() => navigate(`/projects/${project.id}`)}
+                    >
+                      View Project
+                    </Button>
                   </CardFooter>
                 </Card>
               ))}
@@ -183,6 +230,87 @@ export default function Projects() {
             </div>
           )}
         </main>
+        
+        {/* Filter Dialog */}
+        <Dialog open={showFilterDialog} onOpenChange={setShowFilterDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Filter Projects</DialogTitle>
+            </DialogHeader>
+            
+            <div className="grid gap-6 py-4">
+              {/* Category Filters */}
+              <div>
+                <h3 className="font-medium mb-3">Category</h3>
+                <div className="space-y-2">
+                  {["Web Development", "Mobile App", "Data Science", "Game Development"].map((category) => (
+                    <div key={category} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={`category-${category}`} 
+                        checked={selectedFilters.category.includes(category)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedFilters(prev => ({
+                              ...prev,
+                              category: [...prev.category, category]
+                            }));
+                          } else {
+                            setSelectedFilters(prev => ({
+                              ...prev,
+                              category: prev.category.filter(c => c !== category)
+                            }));
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`category-${category}`}>{category}</Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Duration Filters */}
+              <div>
+                <h3 className="font-medium mb-3">Project Duration</h3>
+                <div className="space-y-2">
+                  {["Short", "Medium", "Long"].map((duration) => (
+                    <div key={duration} className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={`duration-${duration}`} 
+                        checked={selectedFilters.duration.includes(duration)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedFilters(prev => ({
+                              ...prev,
+                              duration: [...prev.duration, duration]
+                            }));
+                          } else {
+                            setSelectedFilters(prev => ({
+                              ...prev,
+                              duration: prev.duration.filter(d => d !== duration)
+                            }));
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`duration-${duration}`}>{duration}</Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setSelectedFilters({ category: [], duration: [] });
+                }}
+              >
+                Reset
+              </Button>
+              <Button onClick={() => setShowFilterDialog(false)}>Apply Filters</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

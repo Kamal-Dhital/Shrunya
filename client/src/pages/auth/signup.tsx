@@ -30,6 +30,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { GithubIcon, AlertCircle } from "lucide-react";
+import GoogleIcon from "@/components/icons/GoogleIcon";
 
 const signupSchema = z.object({
   name: z.string().min(1, "Full name is required"),
@@ -97,7 +98,7 @@ export default function SignupPage() {
       
       // In a real app, we might redirect to a verification page or log the user in
       setTimeout(() => {
-        navigate("/");
+        navigate("/dashboard");
       }, 1000);
     },
     onError: (error) => {
@@ -118,7 +119,23 @@ export default function SignupPage() {
     
     // Simulate a delay before navigating
     setTimeout(() => {
-      navigate("/");
+      navigate("/dashboard");
+    }, 2000);
+  };
+
+  const handleGoogleSignup = () => {
+    setAuthError(null);
+    
+    // In a real app, we would redirect to GitHub OAuth flow
+    // For this demo, we'll just show a message and simulate a signup
+    toast({
+      title: "Google Authentication",
+      description: "Redirecting to Google for authentication...",
+    });
+    
+    // Simulate a delay before navigating
+    setTimeout(() => {
+      navigate("/dashboard");
     }, 2000);
   };
 
@@ -302,6 +319,14 @@ export default function SignupPage() {
           >
             <GithubIcon className="h-4 w-4" />
             GitHub
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full flex items-center justify-center gap-2"
+            onClick={handleGoogleSignup}
+          >
+            <GoogleIcon className="h-4 w-4" />
+            Google
           </Button>
         </CardContent>
         <CardFooter className="flex justify-center">

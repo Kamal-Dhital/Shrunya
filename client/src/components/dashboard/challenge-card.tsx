@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 interface ChallengeCardProps {
+  id?: number;
   title: string;
   description: string;
   category: string;
@@ -12,6 +13,7 @@ interface ChallengeCardProps {
 }
 
 export function ChallengeCard({
+  id,
   title,
   description,
   category,
@@ -90,7 +92,7 @@ export function ChallengeCard({
             <span className="text-gray-500">Participants:</span>
             <span className="font-medium">{participants}</span>
           </div>
-          <a href="#" className="text-primary text-sm font-medium">Try challenge</a>
+          <a href={`/challenges/${id}`} className="text-primary text-sm font-medium">View challenge</a>
         </div>
       </CardContent>
     </Card>

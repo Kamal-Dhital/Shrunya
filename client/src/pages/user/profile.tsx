@@ -4,6 +4,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation, useRoute } from "wouter";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +41,8 @@ import {
   HomeIcon,
   MessageSquareIcon
 } from "lucide-react";
+import { GitHubIntegration } from "@/components/github/GitHubIntegration";
+import { GitHubIcon } from "@/components/icons/github";
 
 export default function UserProfile() {
   const { toast } = useToast();
@@ -143,6 +146,10 @@ export default function UserProfile() {
       
       <div className="flex-1 overflow-y-auto md:ml-64">
         <Header />
+        <Breadcrumbs items={[
+          { label: "Home", href: "/" },
+          { label: "User Profile", href: "/user/profile", isCurrent: true }
+        ]} />
         
         <main className="p-4 md:p-6">
           <div className="max-w-6xl mx-auto">
@@ -165,10 +172,10 @@ export default function UserProfile() {
             
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-              <TabsList className="grid grid-cols-4 lg:grid-cols-6 mb-4">
+              <TabsList className="grid grid-cols-4 lg:grid-cols-7 mb-4">
                 <TabsTrigger value="profile" onClick={() => navigate("/user/profile")}>Profile</TabsTrigger>
+                <TabsTrigger value="applications" onClick={() => navigate("/user/applications")}>Applications</TabsTrigger>
                 <TabsTrigger value="account" onClick={() => navigate("/user/profile?tab=account")}>Account</TabsTrigger>
-                <TabsTrigger value="billing" onClick={() => navigate("/user/profile?tab=billing")}>Billing</TabsTrigger>
                 <TabsTrigger value="notifications" onClick={() => navigate("/user/profile?tab=notifications")}>Notifications</TabsTrigger>
                 <TabsTrigger value="security" className="hidden lg:block" onClick={() => navigate("/user/profile?tab=security")}>Security</TabsTrigger>
                 <TabsTrigger value="privacy" className="hidden lg:block" onClick={() => navigate("/user/profile?tab=privacy")}>Privacy</TabsTrigger>
@@ -493,6 +500,11 @@ export default function UserProfile() {
                           )}
                         </CardContent>
                       </Card>
+                      
+                      {/* GitHub Integration - Full Width */}
+                      <div className="col-span-1 md:col-span-3 mt-4">
+                        <GitHubIntegration username={user.github} />
+                      </div>
                     </div>
                   </>
                 )}

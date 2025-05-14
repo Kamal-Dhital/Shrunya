@@ -30,6 +30,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { GithubIcon, AlertCircle } from "lucide-react";
+import GoogleIcon from "@/components/icons/GoogleIcon";
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -89,7 +90,7 @@ export default function LoginPage() {
         title: "Login successful",
         description: "You have been logged in successfully.",
       });
-      navigate("/");
+      navigate("/dashboard");
     },
     onError: (error) => {
       console.error("Login error:", error);
@@ -108,7 +109,7 @@ export default function LoginPage() {
         title: "Demo access granted",
         description: "You are now logged in with a demo account.",
       });
-      navigate("/");
+      navigate("/dashboard");
     } catch (error) {
       setAuthError("Failed to access demo account");
     } finally {
@@ -128,7 +129,23 @@ export default function LoginPage() {
     
     // Simulate a delay before navigating
     setTimeout(() => {
-      navigate("/");
+      navigate("/dashboard");
+    }, 2000);
+  };
+
+  const handleGoogleLogin = () => {
+    setAuthError(null);
+    
+    // In a real app, we would redirect to GitHub OAuth flow
+    // For this demo, we'll just show a message and simulate a login
+    toast({
+      title: "Google Authentication",
+      description: "Redirecting to Google for authentication...",
+    });
+    
+    // Simulate a delay before navigating
+    setTimeout(() => {
+      navigate("/dashboard");
     }, 2000);
   };
 
@@ -254,6 +271,15 @@ export default function LoginPage() {
           >
             <GithubIcon className="h-4 w-4" />
             GitHub
+          </Button>
+
+          <Button
+            variant="outline"
+            className="w-full flex items-center justify-center gap-2"
+            onClick={handleGoogleLogin}
+          >
+            <GoogleIcon className="h-4 w-4" />
+            Google
           </Button>
 
           {isDemoMode && (

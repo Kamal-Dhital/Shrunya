@@ -33,12 +33,12 @@ export default function LandingPage() {
               <a href="#features" className="hover:text-gray-200 transition">Features</a>
               <a href="#courses" className="hover:text-gray-200 transition">Courses</a>
               <a href="#community" className="hover:text-gray-200 transition">Community</a>
-              <a href="#pricing" className="hover:text-gray-200 transition">Pricing</a>
+              {/* <a href="#pricing" className="hover:text-gray-200 transition">Pricing</a> */}
             </div>
             <div className="flex space-x-4">
               <Button 
                 variant="outline" 
-                className="border-white text-white hover:bg-white hover:text-primary"
+                className="bg-white text-primary hover:bg-gray-100"
                 onClick={() => navigate("/auth/login")}
               >
                 Log In
@@ -68,24 +68,16 @@ export default function LandingPage() {
               >
                 Get Started for Free
               </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="border-white text-white hover:bg-white hover:text-primary"
-                onClick={() => navigate("/auth/login?demo=true")}
-              >
-                Try Demo Account
-              </Button>
             </div>
           </div>
         </div>
         
         {/* Wave separator */}
-        <div className="h-16 bg-white">
+        {/* <div className="h-16 bg-white">
           <svg viewBox="0 0 1440 100" xmlns="http://www.w3.org/2000/svg" className="fill-current text-primary -mt-1">
             <path d="M0 0 L1440 0 L1440 20 C1320 90, 1200 80, 1080 40 C960 0, 720 60, 600 80 C360 120, 120 40, 0 80 Z" />
           </svg>
-        </div>
+        </div> */}
       </header>
 
       {/* Features Section */}
@@ -326,7 +318,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="py-20 bg-gray-50">
+      {/* <section id="pricing" className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">Simple, Transparent Pricing</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -433,7 +425,7 @@ export default function LandingPage() {
             </Card>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* CTA */}
       <section className="bg-primary text-white py-20">

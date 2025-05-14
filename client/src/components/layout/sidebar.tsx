@@ -33,7 +33,7 @@ type NavItem = {
 const mainNav: NavItem[] = [
   {
     label: "Dashboard",
-    href: "/",
+    href: "/dashboard",
     icon: <HomeIcon className="w-5 h-5" />,
   },
   {
@@ -73,24 +73,6 @@ const accountNav: NavItem[] = [
     label: "Settings",
     href: "/settings/accessibility",
     icon: <SettingsIcon className="w-5 h-5" />,
-    subItems: [
-      {
-        label: "Accessibility",
-        href: "/settings/accessibility",
-      },
-      {
-        label: "Account",
-        href: "/user/profile",
-      },
-      {
-        label: "Payments",
-        href: "/user/profile?tab=billing",
-      },
-      {
-        label: "Notifications",
-        href: "/user/profile?tab=notifications",
-      },
-    ]
   },
 ];
 
@@ -155,16 +137,9 @@ export function Sidebar() {
           <h1 className="font-bold text-xl text-primary">SHRUNYA</h1>
         </div>
 
-        {/* Search */}
-        <div className="px-4 py-4">
-          <div className="relative">
-            <SearchIcon className="w-4 h-4 absolute left-3 top-2.5 text-gray-500" />
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="pl-10 bg-gray-100 border-gray-200"
-            />
-          </div>
+        {/* Sidebar divider */}
+        <div className="px-4 py-2">
+          <div className="h-0.5 w-full bg-gray-100 rounded"></div>
         </div>
 
         {/* Nav */}

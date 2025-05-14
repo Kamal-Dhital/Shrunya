@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { CourseCard } from "@/components/dashboard/course-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpenIcon, SearchIcon, FilterIcon } from "lucide-react";
@@ -8,10 +9,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import React from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 export default function Learning() {
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showFilterDialog, setShowFilterDialog] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState<{
+    difficulty: string[];
+    duration: string[];
+  }>({
+    difficulty: [],
+    duration: []
+  });
   
   // Fetch user courses data
   const userCoursesQuery = useQuery({
@@ -27,7 +40,7 @@ export default function Learning() {
 
   const isLoading = userCoursesQuery.isLoading || coursesQuery.isLoading;
 
-  // Filter courses based on search and active tab
+  // Filter courses based on search, active tab, and additional filters
   const filterCourses = (courses: any[]) => {
     if (!courses) return [];
     
@@ -43,9 +56,24 @@ export default function Learning() {
       );
     }
     
-    // Filter by tab
+    // Filter by tab (category)
     if (activeTab !== "all") {
       filtered = filtered.filter(course => course.category.toLowerCase() === activeTab);
+    }
+    
+    // Apply additional filters
+    if (selectedFilters.difficulty.length > 0) {
+      filtered = filtered.filter(course => 
+        selectedFilters.difficulty.includes(course.difficulty || "Beginner")
+      );
+    }
+    
+    if (selectedFilters.duration.length > 0) {
+      filtered = filtered.filter(course => {
+        const duration = course.totalModules <= 5 ? "Short" : 
+                        course.totalModules <= 10 ? "Medium" : "Long";
+        return selectedFilters.duration.includes(duration);
+      });
     }
     
     return filtered;
@@ -69,6 +97,10 @@ export default function Learning() {
       
       <div className="flex-1 overflow-y-auto md:ml-64">
         <Header />
+        <Breadcrumbs items={[
+          { label: "Home", href: "/" },
+          { label: "Learning", href: "/learning", isCurrent: true }
+        ]} />
         
         <main className="p-4 md:p-6">
           {/* Page header */}
@@ -92,9 +124,18 @@ export default function Learning() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <Button variant="outline" className="flex items-center gap-1">
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-1"
+                onClick={() => setShowFilterDialog(true)}
+              >
                 <FilterIcon className="h-4 w-4" />
                 <span>Filters</span>
+                {(selectedFilters.difficulty.length > 0 || selectedFilters.duration.length > 0) && (
+                  <span className="ml-2 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {selectedFilters.difficulty.length + selectedFilters.duration.length}
+                  </span>
+                )}
               </Button>
             </div>
           </div>
@@ -211,6 +252,87 @@ export default function Learning() {
               </div>
             )}
           </div>
+          
+          {/* Filter Dialog */}
+          <Dialog open={showFilterDialog} onOpenChange={setShowFilterDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Filter Courses</DialogTitle>
+              </DialogHeader>
+              
+              <div className="grid gap-6 py-4">
+                {/* Difficulty Filters */}
+                <div>
+                  <h3 className="font-medium mb-3">Difficulty</h3>
+                  <div className="space-y-2">
+                    {["Beginner", "Intermediate", "Advanced"].map((difficulty) => (
+                      <div key={difficulty} className="flex items-center space-x-2">
+                        <Checkbox 
+                          id={`difficulty-${difficulty}`} 
+                          checked={selectedFilters.difficulty.includes(difficulty)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedFilters(prev => ({
+                                ...prev,
+                                difficulty: [...prev.difficulty, difficulty]
+                              }));
+                            } else {
+                              setSelectedFilters(prev => ({
+                                ...prev,
+                                difficulty: prev.difficulty.filter(d => d !== difficulty)
+                              }));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={`difficulty-${difficulty}`}>{difficulty}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Duration Filters */}
+                <div>
+                  <h3 className="font-medium mb-3">Duration</h3>
+                  <div className="space-y-2">
+                    {["Short", "Medium", "Long"].map((duration) => (
+                      <div key={duration} className="flex items-center space-x-2">
+                        <Checkbox 
+                          id={`duration-${duration}`} 
+                          checked={selectedFilters.duration.includes(duration)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedFilters(prev => ({
+                                ...prev,
+                                duration: [...prev.duration, duration]
+                              }));
+                            } else {
+                              setSelectedFilters(prev => ({
+                                ...prev,
+                                duration: prev.duration.filter(d => d !== duration)
+                              }));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={`duration-${duration}`}>{duration}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              <DialogFooter>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setSelectedFilters({ difficulty: [], duration: [] });
+                  }}
+                >
+                  Reset
+                </Button>
+                <Button onClick={() => setShowFilterDialog(false)}>Apply Filters</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </main>
       </div>
     </div>

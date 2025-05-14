@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { CourseCard } from "@/components/dashboard/course-card";
 import { ChallengeCard } from "@/components/dashboard/challenge-card";
@@ -51,8 +52,12 @@ export default function Dashboard() {
       
       <div className="flex-1 overflow-y-auto md:ml-64">
         <Header />
-        
-        <main className="p-4 md:p-6">
+        <Breadcrumbs items={[
+          { label: "Home", href: "/" },
+          { label: "Dashboard", href: "/dashboard", isCurrent: true }
+        ]}
+        />
+        <main className="p-4 md:p-6 pt-4">
           {/* Page header */}
           <div className="mb-6">
             <h1 className="text-2xl font-bold">Welcome back, Sarah!</h1>

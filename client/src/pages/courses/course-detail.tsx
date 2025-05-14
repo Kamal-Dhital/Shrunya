@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -90,18 +91,23 @@ export default function CourseDetail() {
   const handleEnroll = () => {
     if (!courseId) return;
     
-    if (courseQuery.data?.isPremium) {
-      // Navigate to payment page for premium courses
-      setLocation(`/courses/${courseId}/checkout`);
-    } else {
-      // Directly enroll for free courses
-      enrollMutation.mutate({
-        userId: 1, // Using mock user ID for now
-        courseId: courseId,
-        completedModules: 0
-      });
-    }
+    // Navigate to enrollment page for all courses
+    setLocation(`/courses/${courseId}/enroll`);
+    
+    // Previous implementation:
+    // if (courseQuery.data?.isPremium) {
+    //   // Navigate to payment page for premium courses
+    //   setLocation(`/courses/${courseId}/checkout`);
+    //   } else {
+    //     // Directly enroll for free courses
+    //     enrollMutation.mutate({
+    //       userId: 1, // Using mock user ID for now
+    //       courseId: courseId,
+    //       completedModules: 0
+    //     });
+    //   }
   };
+
 
   // Handle continue learning 
   const handleContinueLearning = () => {
@@ -118,6 +124,11 @@ export default function CourseDetail() {
       
       <div className="flex-1 overflow-y-auto md:ml-64">
         <Header />
+        <Breadcrumbs items={[
+          { label: "Home", href: "/" },
+          { label: "Learning", href: "/learning" },
+          { label: courseQuery.data?.title || "Course Details", href: `/courses/${courseId}`, isCurrent: true }
+        ]} />
         
         <main className="p-4 md:p-6">
           {isLoading ? (

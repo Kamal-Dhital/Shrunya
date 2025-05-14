@@ -3,8 +3,8 @@ import { useLocation } from "wouter";
 import { AuthContext, NotificationContext } from "@/App";
 import { NotificationsPopover } from "./notifications";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { GlobalSearch } from "@/components/search/global-search";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +22,9 @@ import {
   HelpCircle,
   LogOut,
   Github,
+  AccessibilityIcon,
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface HeaderProps {
   className?: string;
@@ -33,7 +35,7 @@ export function Header({ className, toggleSidebar }: HeaderProps) {
   const [, navigate] = useLocation();
   const { user, logout } = useContext(AuthContext);
   const { addNotification } = useContext(NotificationContext);
-  const [isSearchActive, setIsSearchActive] = useState(false);
+  const { toast } = useToast();
   
   // Generate initials from the user name
   const getUserInitials = () => {
@@ -75,45 +77,39 @@ export function Header({ className, toggleSidebar }: HeaderProps) {
         <span className="sr-only">Toggle Menu</span>
       </Button>
       
-      {isSearchActive ? (
-        <div className="flex flex-1 items-center">
-          <Search className="h-4 w-4 text-muted-foreground absolute ml-3" />
-          <Input 
-            placeholder="Search everything..." 
-            className="flex-1 pl-9 focus-visible:ring-0 focus-visible:ring-offset-0"
-            onBlur={() => setIsSearchActive(false)}
-            autoFocus
-          />
-        </div>
-      ) : (
-        <>
-          <div className="hidden md:flex md:flex-1">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="gap-2 text-muted-foreground"
-              onClick={() => setIsSearchActive(true)}
-            >
-              <Search className="h-4 w-4" />
-              <span className="hidden md:inline">Search everything...</span>
-              <kbd className="hidden md:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground">
-                <span className="text-xs">⌘</span>K
-              </kbd>
-            </Button>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setIsSearchActive(true)}
-          >
-            <Search className="h-5 w-5" />
-            <span className="sr-only">Search</span>
-          </Button>
-        </>
-      )}
+      <div className="hidden md:flex md:flex-1">
+        <GlobalSearch />
+      </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="md:hidden"
+        onClick={() => {
+          // This will be handled by the GlobalSearch component
+          // which listens for the keyboard shortcut
+          const event = new KeyboardEvent('keydown', {
+            key: 'k',
+            metaKey: true,
+            bubbles: true
+          });
+          document.dispatchEvent(event);
+        }}
+      >
+        <Search className="h-5 w-5 text-primary/70" />
+        <span className="sr-only">Search</span>
+      </Button>
       
       <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate("/settings/accessibility")}
+          title="Accessibility Settings"
+          aria-label="Accessibility Settings"
+        >
+          <AccessibilityIcon className="h-5 w-5" />
+          <span className="sr-only">Accessibility Settings</span>
+        </Button>
         {/* GitHub Connect Button */}
         <Button 
           variant="outline" 
